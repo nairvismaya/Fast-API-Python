@@ -1,6 +1,7 @@
 from  fastapi import FastAPI,status
 from pydantic import BaseModel
 from fastapi.exceptions import HTTPException
+from typing import Optional
 books=[
     {
         "id":1,
@@ -73,6 +74,23 @@ def update_book(book_id:int,book_update:BookUpdate):
             book['published_year']=book_update.published_year
             return book
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Book not found")
+
+class UserUpdate(BaseModel):
+    title:Optional[str]=None
+    author:Optional[str]=None
+    published_year:Optional[int]=None
+
+@app.patch("/books/{book_id}")
+def Userupdate(book_id:int,book_update:UserUpdate):
+    update_book=book_update.model_dump(exclude_unset=True)
+    for book in books:
+        if book["id"] == book_id:
+
+            for key, value in update_book.items():
+                book[key] = value
+
+            return book
+
 
 @app.delete("/books/{book_id}")
 def delete_book(book_id:int):
